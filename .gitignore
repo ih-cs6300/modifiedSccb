@@ -2,6 +2,11 @@
 *.pyc
 ccbid/*.pyc
 .idea/*
+build/
+venv/
+dist/
+ecodse-model
+bin/ecodse-model
 
 # and ignore the scripts I have to help remember how to merge these dang commits
 develop-to-master.sh

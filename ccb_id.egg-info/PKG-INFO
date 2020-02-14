@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: ccb-id
+Version: 1.0.0
+Summary: Species classification approach using imaging spectroscopy
+Home-page: https://github.com/stanford-ccb/ccb-id
+Author: Christopher Anderson
+Author-email: cbanders@stanford.edu
+License: MIT
+Description: UNKNOWN
+Keywords: neon,biogeography,classification,machine learning,imaging spectroscopy,remote sensing
+Platform: any
