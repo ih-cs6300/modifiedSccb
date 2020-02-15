@@ -102,7 +102,7 @@ def main():
 
     # then read the feature data, which may come as a raster or a csv
     if ccbid.read.is_csv(argv.input):
-        id_labels, features = ccbid.read.training_data(argv.input)
+        id_labels, features, newFeatures = ccbid.read.training_data(argv.input)
 
     elif ccbid.read.is_raster(args.input):
         raster = ccbid.read.raster(argv.input)
@@ -152,6 +152,7 @@ def main():
         # subset all data using the mask for future analyses
         features = features[mask, :]
         id_labels = id_labels[mask]
+        newFeatures = newFeatures[mask, :]
 
         # report on the number of samples removed
         if argv.verbose:
@@ -166,6 +167,7 @@ def main():
         if argv.verbose:
             prnt.status("Transforming feature data")
 
+        features = np.hstack([features, newFeatures])
         features = model.reducer.transform(features)
 
         # then supbset the transformed features
