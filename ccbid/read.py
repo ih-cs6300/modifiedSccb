@@ -86,9 +86,9 @@ def training_data(path):
     """
     df = _pd.read_csv(path)
     crown_id = _np.array(df.iloc[:, 0])
-    features = _np.array(df.iloc[:, 1:])
-
-    return [crown_id, features]
+    features = _np.array(df.iloc[:, 1:427])
+    newFeatures = _np.array(df.iloc[:, 427:])
+    return [crown_id, features, newFeatures]
 
 
 def is_raster(path):

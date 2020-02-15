@@ -17,6 +17,10 @@ def pca(features, n_pcs=100):
     reducer = _PCA(n_components=n_pcs, whiten=True)
     return reducer.fit_transform(features)
 
+def myPca(features, n_pcs=100):
+    reducer = _PCA(n_components=n_pcs, whiten=True)
+    transformed = reducer.fit_transform(features)
+    return reducer, transformed[:, 0:n_pcs]
 
 def from_path(path, features, n_features=None):
     """Transformation using a saved decomposition object

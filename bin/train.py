@@ -64,7 +64,7 @@ def arg_logic(argv):
         argv.input = args.path_training
         argv.crowns = args.path_crowns
         argv.reducer = args.path_reducer
-        argv.n_features = 100  # | 100 --> 93% | 50 --> 93%  | 20 --> 92% |
+        argv.n_features = 50  # | 100 --> 93% | 50 --> 93%  | 20 --> 92% |
         argv.models = [args.path_gbc, args.path_rfc]
         argv.bands = args.path_bands
         argv.remove_outliers = 'PCA'
