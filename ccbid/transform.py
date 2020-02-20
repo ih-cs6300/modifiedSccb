@@ -1,8 +1,10 @@
 """Methods for transforming/decomposing reflectance data (e.g., using PCA)
 """
 from sklearn.decomposition import PCA as _PCA
+from sklearn.preprocessing import StandardScaler
 from . import read as _read
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 def pca(features, n_pcs=100):
     """PCA transformation function
@@ -19,7 +21,17 @@ def pca(features, n_pcs=100):
 
 def myPca(features, n_pcs=100):
     reducer = _PCA(n_components=n_pcs, whiten=True)
+    features = StandardScaler().fit_transform(features)
     transformed = reducer.fit_transform(features)
+
+    # plt.figure()
+    # plt.plot(np.cumsum(reducer.explained_variance_ratio_))
+    # plt.xlabel('Number of Components')
+    # plt.ylabel('Variance (%)') #for each component
+    # plt.title('Modified Stanford-CCB Explained Variance')
+    # plt.grid()
+    # plt.show()
+
     return reducer, transformed[:, 0:n_pcs]
 
 def from_path(path, features, n_features=None):

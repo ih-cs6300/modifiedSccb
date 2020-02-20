@@ -10,6 +10,7 @@ import pandas as pd
 import ccbid
 from ccbid import args
 from ccbid import prnt
+from sklearn.preprocessing import StandardScaler
 
 
 # set up the argument parser to read command line inputs
@@ -168,7 +169,9 @@ def main():
             prnt.status("Transforming feature data")
 
         features = np.hstack([features, newFeatures])
+        features = StandardScaler().fit_transform(features)
         features = model.reducer.transform(features)
+
 
         # then supbset the transformed features
         if model.n_features_ is not None:

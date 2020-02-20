@@ -9,7 +9,7 @@ from ccbid import args
 from ccbid import prnt
 from sklearn import metrics
 from sklearn import model_selection
-
+from sklearn.svm import SVC
 
 # set up the argument parser to read command line inputs
 def parse_args():
@@ -64,7 +64,7 @@ def arg_logic(argv):
         argv.input = args.path_training
         argv.crowns = args.path_crowns
         argv.reducer = args.path_reducer
-        argv.n_features = 100  # | 100 --> 93% | 50 --> 93%  | 20 --> 92% |
+        argv.n_features = 35  # | 100 --> 93% | 50 --> 93%  | 20 --> 92% |  5 10 20 30 40 50 80 90 100 120
         argv.models = [args.path_gbc, args.path_rfc]
         argv.bands = args.path_bands
         argv.remove_outliers = 'PCA'
@@ -169,6 +169,9 @@ def main():
     xctrain, xctest, yctrain, yctest, sctrain, sctest = model_selection.train_test_split(
         xcalib, ycalib, scalib, test_size=0.5, stratify=scalib)
 
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(features, crown_labels, test_size=0.5, random_state=0)
+
+
     # -----
     # step 4: model training
     # -----
@@ -191,9 +194,74 @@ def main():
         m.n_features_ = argv.n_features
 
     # tune 'em if you got 'em
-    if argv.tune:
+    if argv.tune or 1 == 1:
         # deal with this guy later
-        prnt.error("Sorry - not yet implemented!")
+        #prnt.error("Sorry - not yet implemented!")
+        print("Tuning")
+        # parameter_grid = [{
+        #                         'n_estimators': [20, 50, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000],
+        #                         'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, None],
+        #                         'min_samples_split': [2, 5, 10],
+        #                         'min_impurity_split': [1e-8, 1e-7, 1e-6],
+        #                         'learning_rate': [0.01, 0.1, 0.2],
+        #                         'max_features': ['log2', 'sqrt', None],
+        #                         'min_samples_leaf': [1, 2, 4],
+        #                     },
+        #
+        #                     {
+        #                         'n_estimators': [20, 50, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000],
+        #                         'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, None],
+        #                         'min_samples_split': [2, 5, 10],
+        #                         'min_impurity_split': [1e-8, 1e-7, 1e-6],
+        #                         'criterion': ['gini', 'entropy'],
+        #                         'bootstrap': [True, False],
+        #                         'max_features': ['auto', 'sqrt'],
+        #                         'min_samples_leaf': [1, 2, 4],
+        #                     }
+        # ]
+
+        parameter_grid = []
+        #parameter_grid.append(m.models_[0].get_params())
+        #parameter_grid.append(m.models_[1].get_params())
+
+        parameter_grid.append( {'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, None]} )
+        parameter_grid.append( {'max_depth':  [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, None]} )
+
+        tuned_params = []
+        for idx in range(len(m.models_)):
+            print("Model " + str(idx))
+            print("\n")
+            print("# Tuning hyper-parameters for %s\n" % 'f1_macro')
+
+            clf = model_selection.GridSearchCV(m.models_[idx], parameter_grid[idx], verbose=2, scoring='f1_macro', n_jobs = 2)
+            #clf = model_selection.RandomizedSearchCV(estimator = m.models_[idx], param_distributions = parameter_grid[idx], n_iter = 5, cv = 5, verbose=2, random_state=42, n_jobs = 2, scoring='f1_macro')
+            clf.fit(X_train, y_train)
+            print("Best parameters set found on development set:")
+            print("\n")
+            print(clf.best_params_)
+
+            #append save best parameters found
+            tuned_params.append(clf.best_params_)
+            print("\n")
+            print("Grid scores on development set:")
+            print("\n")
+            means = clf.cv_results_['mean_test_score']
+            stds = clf.cv_results_['std_test_score']
+            for mean, std, params in zip(means, stds, clf.cv_results_['params']):
+                print("%0.3f (+/-%0.03f) for %r" % (mean, std * 2, params))
+            print("\n")
+
+            print("Detailed classification report:")
+            print("\n")
+            print("The model is trained on the full development set.")
+            print("The scores are computed on the full evaluation set.")
+            print("\n")
+            y_true, y_pred = y_test, clf.predict(X_test)
+            print(metrics.classification_report(y_true, y_pred))
+            print("\n")
+
+    #set parameters to best parameters found
+    m.set_params(tuned_params)
 
     # calculate the sample weights then fit the model using the training data
     wtrain = ccbid.get_sample_weights(ytrain)
@@ -219,10 +287,22 @@ def main():
         ypred = m.predict(xctest, use_calibrated=True)
         yprob = m.predict_proba(xctest, use_calibrated=True)
 
+        #keep track of m0 and m1 micro and macro f1 to calculate average
+        microf1 = []
+        macrof1 = []
         for i in range(m.n_models_):
             prnt.status("Model {}".format(i + 1))
             print(metrics.classification_report(yctest, ypred[:, i], target_names=species_unique))
             prnt.model_report(yctest, ypred[:, i], yprob[:, :, i])
+            microf1.append(metrics.f1_score(yctest, ypred[:, i], average='micro'))
+            macrof1.append(metrics.f1_score(yctest, ypred[:, i], average='macro'))
+            #print("Micro F1: " + str(metrics.f1_score(yctest, ypred[:, i], average='micro')))
+            #print("Macro F1: " + str(metrics.f1_score(yctest, ypred[:, i], average='macro')))
+            #print()
+
+        print("Avg micro-f1: " + str(sum(microf1)/2))
+        print("Avg macro-f1: " + str(sum(macrof1)/2))
+        print("\n")
 
     # finally, re-run the training/calibration using the full data set 
     if argv.verbose:
