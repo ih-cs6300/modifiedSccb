@@ -169,7 +169,7 @@ def main():
             prnt.status("Transforming feature data")
 
         features = np.hstack([features, newFeatures])
-        features = StandardScaler().fit_transform(features)
+        #features = StandardScaler().fit_transform(features)
         features = model.reducer.transform(features)
 
 

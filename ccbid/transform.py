@@ -20,8 +20,8 @@ def pca(features, n_pcs=100):
     return reducer.fit_transform(features)
 
 def myPca(features, n_pcs=100):
-    reducer = _PCA(n_components=n_pcs, whiten=True)
-    features = StandardScaler().fit_transform(features)
+    reducer = _PCA(whiten=True)
+    #features = StandardScaler().fit_transform(features)
     transformed = reducer.fit_transform(features)
 
     # plt.figure()

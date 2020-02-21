@@ -64,7 +64,7 @@ def arg_logic(argv):
         argv.input = args.path_training
         argv.crowns = args.path_crowns
         argv.reducer = args.path_reducer
-        argv.n_features = 35  # | 100 --> 93% | 50 --> 93%  | 20 --> 92% |  5 10 20 30 40 50 80 90 100 120
+        argv.n_features = 100  # | 100 --> 93% | 50 --> 93%  | 20 --> 92% |  5 10 20 30 40 50 80 90 100 120 35
         argv.models = [args.path_gbc, args.path_rfc]
         argv.bands = args.path_bands
         argv.remove_outliers = 'PCA'
@@ -142,6 +142,7 @@ def main():
 
         catMatrix = np.hstack([features[:, good_bands], newFeatures])
         reducer, features = ccbid.transform.myPca(catMatrix, argv.n_features) #ccbid.transform.from_path(argv.reducer, features[:, good_bands], argv.n_features)
+        #reducer, features = ccbid.transform.from_path(argv.reducer, features[:, good_bands], argv.n_features)
 
     # ok, now to do something kinda weird
     # in the original submission, I had resampled the data, then split into train/test sets
@@ -194,7 +195,7 @@ def main():
         m.n_features_ = argv.n_features
 
     # tune 'em if you got 'em
-    if argv.tune or 1 == 1:
+    if argv.tune or 1 == 0:
         # deal with this guy later
         #prnt.error("Sorry - not yet implemented!")
         print("Tuning")
@@ -261,7 +262,7 @@ def main():
             print("\n")
 
     #set parameters to best parameters found
-    m.set_params(tuned_params)
+    #m.set_params(tuned_params)
 
     # calculate the sample weights then fit the model using the training data
     wtrain = ccbid.get_sample_weights(ytrain)
