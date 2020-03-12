@@ -141,6 +141,7 @@ def main():
             prnt.status("Transforming feature data")
 
         catMatrix = np.hstack([features[:, good_bands], newFeatures])
+        mu = np.mean(catMatrix, axis=0)
         reducer, features = ccbid.transform.myPca(catMatrix, argv.n_features) #ccbid.transform.from_path(argv.reducer, features[:, good_bands], argv.n_features)
         #reducer, features = ccbid.transform.from_path(argv.reducer, features[:, good_bands], argv.n_features)
 
@@ -195,7 +196,7 @@ def main():
         m.n_features_ = argv.n_features
 
     # tune 'em if you got 'em
-    if argv.tune or 1 == 0:
+    if argv.tune or 0 == 1:
         # deal with this guy later
         #prnt.error("Sorry - not yet implemented!")
         print("Tuning")
@@ -266,19 +267,31 @@ def main():
 
     # calculate the sample weights then fit the model using the training data
     wtrain = ccbid.get_sample_weights(ytrain)
-    m.fit(xtrain, ytrain, sample_weight=wtrain)
+    m.fit(xtrain[:, 0:100], ytrain, sample_weight=wtrain)
 
     # assess the fit on test data
     if argv.verbose:
         prnt.status("Assessing model training performance")
-        ypred = m.predict(xctest)
-        yprob = m.predict_proba(xctest)
+        ypred = m.predict(xctest[:, 0:100])
+        yprob = m.predict_proba(xctest[:, 0:100])
 
         for i in range(m.n_models_):
             prnt.status("Model {}".format(i + 1))
             print(metrics.classification_report(yctest, ypred[:, i], target_names=species_unique))
             prnt.model_report(yctest, ypred[:, i], yprob[:, :, i])
 
+            idx = yctest != ypred[:, i]
+            missedIdx = np.argwhere(idx == True)
+            missedIdx = missedIdx.flatten()
+
+            missedInstances = xctest[missedIdx, :]
+            mi = reducer.inverse_transform(missedInstances)
+            originaltrainingIndex = []
+            for idx2 in range(mi.shape[0]):
+                originaltrainingIndex.append(np.where(np.isclose(mi[idx2, :], catMatrix).all(axis=1)))
+            originaltrainingIndex = np.array(originaltrainingIndex).flatten()
+            missMatrix = catMatrix[originaltrainingIndex, :]
+            print(originaltrainingIndex)
     # next, calibrate prediction probabilities
     m.calibrate(xctrain, yctrain)
 
@@ -297,6 +310,7 @@ def main():
             prnt.model_report(yctest, ypred[:, i], yprob[:, :, i])
             microf1.append(metrics.f1_score(yctest, ypred[:, i], average='micro'))
             macrof1.append(metrics.f1_score(yctest, ypred[:, i], average='macro'))
+            print(metrics.confusion_matrix(yctest, ypred[:, i]))
             #print("Micro F1: " + str(metrics.f1_score(yctest, ypred[:, i], average='micro')))
             #print("Macro F1: " + str(metrics.f1_score(yctest, ypred[:, i], average='macro')))
             #print()
@@ -315,6 +329,12 @@ def main():
 
     # save the ccb model variable
     ccbid.write.pck(argv.output, m)
+
+    #fullModPred = np.argmax(m.predict_proba(X_test, average_proba=True), axis=1)
+    #idx = y_test != fullModPred
+    #missedIdx = np.argwhere(idx == True)
+
+    #print(metrics.confusion_matrix(y_test, fullModPred))
 
     prnt.line_break()
     prnt.status("CCB-ID model training complete!")
