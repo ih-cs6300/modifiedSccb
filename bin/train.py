@@ -269,11 +269,13 @@ def main():
     wtrain = ccbid.get_sample_weights(ytrain)
     m.fit(xtrain[:, 0:100], ytrain, sample_weight=wtrain)
 
+    originaltrainingIndex = []
     # assess the fit on test data
     if argv.verbose:
         prnt.status("Assessing model training performance")
         ypred = m.predict(xctest[:, 0:100])
         yprob = m.predict_proba(xctest[:, 0:100])
+
 
         for i in range(m.n_models_):
             prnt.status("Model {}".format(i + 1))
@@ -286,7 +288,6 @@ def main():
 
             missedInstances = xctest[missedIdx, :]
             mi = reducer.inverse_transform(missedInstances)
-            originaltrainingIndex = []
             for idx2 in range(mi.shape[0]):
                 originaltrainingIndex.append(np.where(np.isclose(mi[idx2, :], catMatrix).all(axis=1)))
             originaltrainingIndex = np.array(originaltrainingIndex).flatten()
