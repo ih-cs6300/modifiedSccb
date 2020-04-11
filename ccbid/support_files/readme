@@ -1,0 +1,2 @@
+testing3.csv - made from climate_fia2.csv and daymet data; full subset of attributes minus watercd
+training3.csv - made from climate_fia2.csv and daymet data; full subset of attributes minus watercd

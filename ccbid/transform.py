@@ -28,10 +28,11 @@ def myPca(features, n_pcs=100):
     # plt.plot(np.cumsum(reducer.explained_variance_ratio_))
     # plt.xlabel('Number of Components')
     # plt.ylabel('Variance (%)') #for each component
-    # plt.title('Modified Stanford-CCB Explained Variance')
+    # plt.title('Stanford-CCB Explained Variance')
     # plt.grid()
     # plt.show()
 
+    n_pcs = features.shape[1]
     return reducer, transformed[:, 0:n_pcs]
 
 def from_path(path, features, n_features=None):
