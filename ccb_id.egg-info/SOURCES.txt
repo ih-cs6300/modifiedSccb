@@ -1,6 +1,5 @@
 README.md
 setup.py
-bin/train
 ccb_id.egg-info/PKG-INFO
 ccb_id.egg-info/SOURCES.txt
 ccb_id.egg-info/dependency_links.txt
