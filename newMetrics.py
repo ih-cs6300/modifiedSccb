@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn import metrics
 import warnings
+from sklearn.metrics import accuracy_score
 
 #ignore warnings about depracated packages
 warnings.filterwarnings("ignore")
@@ -24,3 +25,6 @@ splist.sort()
 print
 print
 print metrics.classification_report(full_data["SpeciesID"], full_data["species"], target_names=splist)
+print "Accuracy: " + str(accuracy_score(full_data["SpeciesID"], full_data["species"]))
+#print "F1: " + str(metrics.f1_score(full_data["SpeciesID"], full_data["species"]))
+
