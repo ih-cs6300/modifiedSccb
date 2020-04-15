@@ -25,7 +25,7 @@ def average(predictions, id_labels, sp_labels):
     for i in range(n_id):
         id_index = id_labels == id_unique[i]
         output_pr[i * n_sp:(i + 1) * n_sp] = predictions[id_index].mean(axis=0)
-
+        #output_pr[i * n_sp:(i + 1) * n_sp] = predictions[id_index].max(axis=0)
     return output_pr
 
 

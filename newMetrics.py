@@ -24,3 +24,9 @@ splist.sort()
 print
 print
 print metrics.classification_report(full_data["SpeciesID"], full_data["species"], target_names=splist)
+print "accuracy: " + str(metrics.accuracy_score(full_data["SpeciesID"], full_data["species"], normalize=True))
+
+incorrectDf = full_data[full_data["SpeciesID"] != full_data["species"]]
+incorrectDf = incorrectDf[["itcID", "SpeciesID", "GenusID"]]
+incorrectDf = incorrectDf.rename(columns= {"itcID": "crown_id", "SpeciesID": "species_id", "GenusID": "genus_id"})
+incorrectDf.to_csv("testSetErrors.csv", header=True, index=False)
