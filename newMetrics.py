@@ -1,3 +1,5 @@
+#per pixel accuracy
+
 import pandas as pd
 from sklearn import metrics
 import warnings
@@ -24,7 +26,7 @@ splist = list(df['species'].unique())
 splist.sort()
 print
 print
-print metrics.classification_report(full_data["SpeciesID"], full_data["species"], target_names=splist)
+#print metrics.classification_report(full_data["SpeciesID"], full_data["species"], target_names=splist)
+print metrics.classification_report(full_data["SpeciesID"], full_data["species"])
 print "Accuracy: " + str(accuracy_score(full_data["SpeciesID"], full_data["species"]))
 #print "F1: " + str(metrics.f1_score(full_data["SpeciesID"], full_data["species"]))
-

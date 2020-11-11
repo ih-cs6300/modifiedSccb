@@ -64,11 +64,11 @@ def arg_logic(argv):
         argv.input = args.path_training
         argv.crowns = args.path_crowns
         argv.reducer = args.path_reducer
-        argv.n_features = 35  # | 100 --> 93% | 50 --> 93%  | 20 --> 92% |  5 10 20 30 40 50 80 90 100 120 35
+        argv.n_features = 100  # | 100 --> 93% | 50 --> 93%  | 20 --> 92% |  5 10 20 30 40 50 80 90 100 120 35
         argv.models = [args.path_gbc, args.path_rfc]
         argv.bands = args.path_bands
         argv.remove_outliers = 'PCA'
-        argv.threshold = 3
+        argv.threshold = 3 #original value = 3
         argv.split = 'sample'
         argv.tune = False
         argv.feature_selection = False
