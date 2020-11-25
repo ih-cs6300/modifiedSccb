@@ -86,8 +86,8 @@ def training_data(path):
     """
     df = _pd.read_csv(path)
     crown_id = _np.array(df.iloc[:, 0])
-    features = _np.array(df.iloc[:, 1:370]) #old value 352 # 370
-    newFeatures = _np.array(df.iloc[:, 370:]) #old value 352 #370
+    features = _np.array(df.iloc[:, 1:352]) #old value 352 #370
+    newFeatures = _np.array(df.iloc[:, 352:]) #old value 352 #370
     return [crown_id, features, newFeatures]
 
 
